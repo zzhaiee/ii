@@ -1,0 +1,3 @@
+# Simulation artifacts
+*.vcd
+cpu_sim
