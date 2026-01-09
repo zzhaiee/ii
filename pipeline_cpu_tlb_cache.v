@@ -282,6 +282,10 @@ module pipeline_cpu_tlb_cache(
         .EXE_pc      (EXE_pc      )
     );
 
+    // Memory operation type signals for DCache control
+    wire mem_load;
+    wire mem_store;
+    
     mem_tlb MEM_module(
         .clk          (clk          ),
         .MEM_valid    (MEM_valid    ),
@@ -294,6 +298,8 @@ module pipeline_cpu_tlb_cache(
         .MEM_WB_bus   (MEM_WB_bus   ),
         .MEM_allow_in (MEM_allow_in ),
         .MEM_wdest    (MEM_wdest    ),
+        .mem_load     (mem_load     ),
+        .mem_store    (mem_store    ),
         .MEM_pc       (MEM_pc       )
     );          
  
@@ -423,9 +429,8 @@ module pipeline_cpu_tlb_cache(
     wire [31:0] dcache_cpu_rdata;
     wire        dcache_cpu_addr_ok;
     wire        dcache_cpu_data_ok;
-    // For DCache, request when there's a memory operation
-    // Note: In full integration, inst_load would come from EXE_MEM_bus
-    wire        dcache_req = MEM_valid && |dm_wen;  // Simplified: only writes for now
+    // DCache request for both load and store operations
+    wire        dcache_req = mem_load || mem_store;
     
     dcache dcache_module(
         .clk           (clk              ),

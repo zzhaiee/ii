@@ -16,6 +16,10 @@ module mem_tlb(
     
     input              MEM_allow_in,
     output     [  4:0] MEM_wdest,
+    
+    // Memory operation type for DCache control
+    output             mem_load,     // Load operation flag
+    output             mem_store,    // Store operation flag
      
     output     [ 31:0] MEM_pc
 );
@@ -66,6 +70,10 @@ module mem_tlb(
     wire ls_word;
     wire lb_sign;
     assign {inst_load, inst_store, ls_word, lb_sign} = mem_control;
+    
+    // Output load/store signals for DCache control
+    assign mem_load  = inst_load & MEM_valid;
+    assign mem_store = inst_store & MEM_valid;
 
     // Memory address
     assign dm_addr = exe_result;

@@ -104,9 +104,10 @@ module cp0_regs(
     end
     
     // Random register - pseudo-random counter for TLBWR
+    // Reset to max value (15) on system reset or when Wired is written per MIPS spec
     always @(posedge clk) begin
-        if (!resetn) begin
-            random_r <= 32'd15;  // Initialize to max TLB entry
+        if (!resetn || wired_write) begin
+            random_r <= 32'd15;  // Reset to max TLB entry
         end
         else begin
             // Decrement, but not below Wired value
@@ -170,13 +171,13 @@ module cp0_regs(
     end
     
     // Wired register
+    wire wired_write = wen && waddr == ADDR_WIRED;
     always @(posedge clk) begin
         if (!resetn) begin
             wired_r <= 32'd0;
         end
-        else if (wen && waddr == ADDR_WIRED) begin
+        else if (wired_write) begin
             wired_r <= {28'd0, wdata[3:0]};
-            // Reset Random when Wired is written
         end
     end
     
